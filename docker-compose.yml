@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  api:
+    build: ./api/devel
+    working_dir: /code
+    command: ["go", "run", "main.go"]
+    environment:
+      - DB_HOST=host.docker.internal:5432
+    networks:
+      default:
+        aliases:
+          - api.social
+      frontend:
+        aliases:
+          - api.social.bushimen
+    volumes:
+      - ./api/src:/code
+  
+  crawler:
+    build: ./crawler/devel
+    working_dir: /code
+    command: ["crond", "-f"]
+    environment:
+      - SOCIAL_ENDPOINT=api.social
+    volumes:
+      - ./crawler/src:/code
+
+networks:
+  frontend:
+    external: true
